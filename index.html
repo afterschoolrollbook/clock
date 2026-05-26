@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clock App</title>
+<meta name="description" content="알람, 스탑워치, 세계시각이 모두 있는 무료 온라인 시계 / Free online clock with alarm, stopwatch, world clock">
+
+<!-- ✅ 구글 애드센스: ca-pub-XXXXXXXXXXXXXXXX 를 본인 ID로 교체 -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@300;400;700&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080c14;
+  --s1:#0d1120;
+  --s2:#111827;
+  --s3:#1a2236;
+  --border:#1e2d47;
+  --accent:#00d4ff;
+  --accent2:#7c5af7;
+  --green:#00e5a0;
+  --amber:#ffb627;
+  --red:#ff4d6d;
+  --text:#e8f0ff;
+  --muted:#4a6080;
+  --mono:'Orbitron',monospace;
+  --sans:'Noto Sans KR',sans-serif;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--sans)}
+body{display:flex;flex-direction:column;min-height:100vh}
+
+/* scrollbar */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--s1)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+/* ── top bar ── */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:var(--s1);border-bottom:1px solid var(--border);flex-shrink:0}
+.topbar-logo{font-family:var(--mono);font-size:13px;letter-spacing:3px;color:var(--accent);font-weight:400}
+.topbar-right{display:flex;gap:8px;align-items:center}
+.lang-btn{padding:5px 12px;background:none;border:1px solid var(--border);border-radius:6px;color:var(--muted);font-size:12px;cursor:pointer;font-family:var(--sans);transition:all .15s}
+.lang-btn.active{border-color:var(--accent);color:var(--accent)}
+
+/* ── ad top ── */
+.ad-top{display:flex;justify-content:center;padding:8px;background:var(--s1);border-bottom:1px solid var(--border)}
+.ad-box{background:var(--s2);border:1px dashed var(--border);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:11px;letter-spacing:1px}
+
+/* ── layout ── */
+.layout{display:flex;flex:1;overflow:hidden}
+.sidebar{width:220px;background:var(--s1);border-right:1px solid var(--border);flex-shrink:0;padding:16px 0;display:flex;flex-direction:column;gap:4px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:12px 20px;cursor:pointer;transition:all .15s;font-size:14px;color:var(--muted);border-left:3px solid transparent}
+.nav-item:hover{color:var(--text);background:var(--s2)}
+.nav-item.active{color:var(--accent);background:var(--s2);border-left-color:var(--accent)}
+.nav-item .nav-icon{font-size:18px;width:24px;text-align:center}
+.main{flex:1;overflow-y:auto;padding:24px}
+.ad-side{width:180px;background:var(--s1);border-left:1px solid var(--border);flex-shrink:0;padding:12px;display:none}
+@media(min-width:1280px){.ad-side{display:block}}
+
+/* ── panel ── */
+.panel{display:none;animation:fadeUp .2s ease}
+.panel.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── clock panel ── */
+.clock-toggle{display:flex;gap:8px;margin-bottom:24px;justify-content:center}
+.cmode-btn{padding:8px 24px;background:var(--s2);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:13px;cursor:pointer;transition:all .15s;font-family:var(--sans)}
+.cmode-btn.active{background:var(--accent);border-color:var(--accent);color:#080c14;font-weight:500}
+
+/* digital clock */
+.digital-clock{text-align:center;padding:40px 20px}
+.dig-time{font-family:var(--mono);font-size:clamp(52px,10vw,90px);font-weight:300;letter-spacing:4px;color:var(--text);line-height:1}
+.dig-time .sep{color:var(--accent);animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.2}}
+.dig-sec{font-family:var(--mono);font-size:clamp(28px,5vw,44px);color:var(--accent);font-weight:300}
+.dig-date{font-size:14px;color:var(--muted);margin-top:12px;letter-spacing:1px}
+.dig-ampm{font-family:var(--mono);font-size:16px;color:var(--accent2);vertical-align:super}
+
+/* analog clock */
+.analog-wrap{display:flex;justify-content:center;padding:20px 0 30px}
+.clock-svg{filter:drop-shadow(0 0 24px rgba(0,212,255,.12))}
+
+/* ── card ── */
+.card{background:var(--s2);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px}
+.card-hd{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:16px;font-weight:500}
+
+/* ── big display ── */
+.big-num{font-family:var(--mono);font-size:clamp(44px,8vw,72px);font-weight:300;text-align:center;padding:20px 0;letter-spacing:2px;line-height:1;color:var(--text)}
+.big-num.running{color:var(--green)}
+.big-num.done{color:var(--amber);animation:pulse .5s infinite}
+@keyframes pulse{50%{opacity:.3}}
+
+/* ── btns ── */
+.btn-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.btn{padding:11px 26px;border-radius:9px;border:1px solid var(--border);background:var(--s3);color:var(--text);font-size:14px;cursor:pointer;transition:all .15s;font-family:var(--sans);font-weight:500}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn:active{transform:scale(.97)}
+.btn.go{background:var(--green);border-color:var(--green);color:#080c14}
+.btn.stop{background:var(--amber);border-color:var(--amber);color:#080c14}
+.btn.danger{background:var(--red);border-color:var(--red);color:white}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#080c14}
+.btn.sm{padding:7px 16px;font-size:12px}
+
+/* progress */
+.prog{height:3px;background:var(--border);border-radius:2px;margin:16px 0;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--green));border-radius:2px;transition:width .8s linear;width:0%}
+
+/* timer inputs */
+.t-inputs{display:flex;gap:8px;justify-content:center;align-items:center;margin-bottom:16px}
+.t-field{display:flex;flex-direction:column;align-items:center;gap:4px}
+.t-field input{width:72px;height:60px;background:var(--s3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:var(--mono);font-size:28px;font-weight:300;text-align:center;transition:border-color .15s}
+.t-field input:focus{outline:none;border-color:var(--accent)}
+.t-field label{font-size:11px;color:var(--muted);letter-spacing:1px}
+.t-sep{font-family:var(--mono);font-size:28px;color:var(--muted);padding-bottom:14px}
+.presets{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:16px}
+
+/* alarm */
+.alarm-add{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px}
+.alarm-add input[type=time]{height:44px;background:var(--s3);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:var(--mono);font-size:18px;padding:0 12px;width:130px}
+.alarm-add input[type=text]{height:44px;background:var(--s3);border:1px solid var(--border);border-radius:9px;color:var(--text);font-size:13px;padding:0 12px;flex:1;min-width:100px;font-family:var(--sans)}
+.alarm-add input:focus{outline:none;border-color:var(--accent)}
+.days-row{display:flex;gap:6px;margin:8px 0;flex-wrap:wrap}
+.day-btn{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:var(--s3);color:var(--muted);font-size:12px;cursor:pointer;transition:all .15s;font-family:var(--sans)}
+.day-btn.sel{background:var(--accent2);border-color:var(--accent2);color:white}
+.rep-lbl{font-size:11px;color:var(--muted);margin-top:4px}
+.alarm-list{display:flex;flex-direction:column;gap:8px}
+.a-item{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--s3);border:1px solid var(--border);border-radius:12px;transition:border-color .2s}
+.a-item.ring{border-color:var(--green);box-shadow:0 0 16px rgba(0,229,160,.15)}
+.a-time{font-family:var(--mono);font-size:22px;font-weight:300;min-width:76px}
+.a-meta{flex:1}
+.a-lbl{font-size:13px;font-weight:500}
+.a-days{font-size:11px;color:var(--muted);margin-top:2px}
+.tog{width:42px;height:22px;background:var(--border);border-radius:11px;position:relative;border:none;cursor:pointer;transition:background .2s;flex-shrink:0}
+.tog::after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;background:white;border-radius:50%;transition:left .2s}
+.tog.on{background:var(--green)}
+.tog.on::after{left:23px}
+.del-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:20px;padding:4px;transition:color .15s;line-height:1}
+.del-btn:hover{color:var(--red)}
+.empty{text-align:center;color:var(--muted);padding:24px;font-size:13px}
+
+/* lap */
+.lap-list{max-height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:5px;margin-top:14px}
+.lap-row{display:flex;justify-content:space-between;align-items:center;padding:7px 12px;background:var(--s3);border-radius:7px;font-family:var(--mono);font-size:13px}
+.lap-row.best{color:var(--green)}
+.lap-row.worst{color:var(--red)}
+.lap-n{color:var(--muted);font-size:11px;min-width:40px}
+
+/* world clock */
+.country-select{margin-bottom:16px}
+.country-select select{width:100%;height:42px;background:var(--s3);border:1px solid var(--border);border-radius:9px;color:var(--text);font-size:14px;padding:0 12px;font-family:var(--sans);cursor:pointer}
+.country-select select:focus{outline:none;border-color:var(--accent)}
+.wc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:10px}
+.wc-card{background:var(--s3);border:1px solid var(--border);border-radius:12px;padding:14px;transition:border-color .2s}
+.wc-card:hover{border-color:var(--accent)}
+.wc-city{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.wc-t{font-family:var(--mono);font-size:26px;font-weight:300}
+.wc-d{font-size:11px;color:var(--muted);margin-top:3px}
+.wc-diff{font-size:11px;color:var(--accent);margin-top:2px}
+
+/* ringing banner */
+.ring-banner{display:none;position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:9999;background:var(--green);color:#080c14;padding:16px 28px;border-radius:14px;box-shadow:0 8px 40px rgba(0,229,160,.4);min-width:280px;text-align:center}
+.ring-banner.show{display:block;animation:slideD .3s ease}
+@keyframes slideD{from{opacity:0;transform:translateX(-50%) translateY(-16px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+.rb-tag{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;opacity:.7}
+.rb-name{font-size:22px;font-weight:700;margin:4px 0}
+.rb-stop{background:#080c14;color:var(--green);border:none;border-radius:8px;padding:9px 22px;font-size:13px;font-weight:700;cursor:pointer;margin-top:8px;font-family:var(--sans)}
+
+/* bottom ad */
+.ad-bottom{display:flex;justify-content:center;padding:10px;background:var(--s1);border-top:1px solid var(--border);flex-shrink:0}
+
+@media(max-width:700px){
+  .sidebar{width:60px}
+  .nav-item .nav-label{display:none}
+  .nav-item{padding:14px;justify-content:center}
+  .main{padding:16px}
+}
+</style>
+</head>
+<body>
+
+<!-- 알람 배너 -->
+<div class="ring-banner" id="ringBanner">
+  <div class="rb-tag" id="rbTag">알람</div>
+  <div class="rb-name" id="rbName">알람</div>
+  <button class="rb-stop" onclick="stopAlarm()" id="rbStop">끄기</button>
+</div>
+
+<!-- 상단 바 -->
+<div class="topbar">
+  <div class="topbar-logo">⏱ CLOCK APP</div>
+  <div class="topbar-right">
+    <button class="lang-btn active" id="btnKO" onclick="setLang('ko')">한국어</button>
+    <button class="lang-btn" id="btnEN" onclick="setLang('en')">English</button>
+  </div>
+</div>
+
+<!-- 상단 광고 -->
+<div class="ad-top">
+  <ins class="adsbygoogle ad-box" style="display:inline-block;width:728px;height:90px"
+    data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="XXXXXXXXXX"></ins>
+  <script>(adsbygoogle=window.adsbygoogle||[]).push({})</script>
+</div>
+
+<div class="layout">
+
+  <!-- 사이드바 -->
+  <div class="sidebar">
+    <div class="nav-item active" onclick="goTab('clock')" id="nav-clock">
+      <span class="nav-icon">🕐</span><span class="nav-label" data-ko="시계" data-en="Clock">시계</span>
+    </div>
+    <div class="nav-item" onclick="goTab('stopwatch')" id="nav-stopwatch">
+      <span class="nav-icon">⏱</span><span class="nav-label" data-ko="스탑워치" data-en="Stopwatch">스탑워치</span>
+    </div>
+    <div class="nav-item" onclick="goTab('timer')" id="nav-timer">
+      <span class="nav-icon">⏳</span><span class="nav-label" data-ko="타이머" data-en="Timer">타이머</span>
+    </div>
+    <div class="nav-item" onclick="goTab('alarm')" id="nav-alarm">
+      <span class="nav-icon">🔔</span><span class="nav-label" data-ko="알람" data-en="Alarm">알람</span>
+    </div>
+    <div class="nav-item" onclick="goTab('world')" id="nav-world">
+      <span class="nav-icon">🌍</span><span class="nav-label" data-ko="세계시각" data-en="World">세계시각</span>
+    </div>
+  </div>
+
+  <!-- 메인 -->
+  <div class="main">
+
+    <!-- ════ 시계 패널 ════ -->
+    <div class="panel active" id="panel-clock">
+      <div class="clock-toggle">
+        <button class="cmode-btn active" id="btn-digital" onclick="setCMode('digital')" data-ko="디지털 시계" data-en="Digital Clock">디지털 시계</button>
+        <button class="cmode-btn" id="btn-analog" onclick="setCMode('analog')" data-ko="아날로그 시계" data-en="Analog Clock">아날로그 시계</button>
+      </div>
+
+      <!-- 디지털 -->
+      <div id="digital-face">
+        <div class="digital-clock">
+          <div class="dig-time">
+            <span id="dHH">00</span><span class="sep">:</span><span id="dMM">00</span>
+            <span class="dig-sec">:<span id="dSS">00</span></span>
+          </div>
+          <div class="dig-date" id="dDate"></div>
+        </div>
+      </div>
+
+      <!-- 아날로그 -->
+      <div id="analog-face" style="display:none">
+        <div class="analog-wrap">
+          <svg class="clock-svg" id="analogSvg" width="300" height="300" viewBox="0 0 300 300">
+            <!-- 외곽 -->
+            <circle cx="150" cy="150" r="145" fill="#0d1120" stroke="#1e2d47" stroke-width="2"/>
+            <circle cx="150" cy="150" r="138" fill="none" stroke="#1a2236" stroke-width="1"/>
+            <!-- 눈금 -->
+            <g id="ticks"></g>
+            <!-- 숫자 -->
+            <g id="nums" font-family="Orbitron,monospace" font-size="14" fill="#4a6080" text-anchor="middle" dominant-baseline="central"></g>
+            <!-- 바늘 -->
+            <line id="hHand" x1="150" y1="150" x2="150" y2="75" stroke="#e8f0ff" stroke-width="5" stroke-linecap="round"/>
+            <line id="mHand" x1="150" y1="150" x2="150" y2="55" stroke="#00d4ff" stroke-width="3" stroke-linecap="round"/>
+            <line id="sHand" x1="150" y1="165" x2="150" y2="42" stroke="#ff4d6d" stroke-width="1.5" stroke-linecap="round"/>
+            <circle cx="150" cy="150" r="5" fill="#00d4ff"/>
+            <circle cx="150" cy="150" r="2" fill="#080c14"/>
+          </svg>
+        </div>
+        <div class="digital-clock" style="padding:0 0 24px">
+          <div class="dig-date" id="aDate" style="font-size:15px;color:var(--text)"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ 스탑워치 패널 ════ -->
+    <div class="panel" id="panel-stopwatch">
+      <div class="card">
+        <div class="big-num" id="swDisp">00:00.000</div>
+        <div class="btn-row" style="margin-bottom:14px">
+          <button class="btn go" id="swBtn" onclick="swToggle()" data-ko="시작" data-en="Start">시작</button>
+          <button class="btn" id="swLapBtn" onclick="swLap()" disabled data-ko="랩" data-en="Lap">랩</button>
+          <button class="btn" onclick="swReset()" data-ko="초기화" data-en="Reset">초기화</button>
+        </div>
+        <div class="lap-list" id="lapList"></div>
+      </div>
+    </div>
+
+    <!-- ════ 타이머 패널 ════ -->
+    <div class="panel" id="panel-timer">
+      <div class="card">
+        <div class="t-inputs">
+          <div class="t-field">
+            <input type="number" id="tH" value="0" min="0" max="23"/>
+            <label data-ko="시간" data-en="Hours">시간</label>
+          </div>
+          <div class="t-sep">:</div>
+          <div class="t-field">
+            <input type="number" id="tM" value="0" min="0" max="59"/>
+            <label data-ko="분" data-en="Min">분</label>
+          </div>
+          <div class="t-sep">:</div>
+          <div class="t-field">
+            <input type="number" id="tS" value="0" min="0" max="59"/>
+            <label data-ko="초" data-en="Sec">초</label>
+          </div>
+        </div>
+        <div class="presets" id="presets"></div>
+        <div class="big-num" id="tDisp">00:00:00</div>
+        <div class="prog"><div class="prog-fill" id="tProg"></div></div>
+        <div class="btn-row">
+          <button class="btn go" id="tBtn" onclick="tToggle()" data-ko="시작" data-en="Start">시작</button>
+          <button class="btn" onclick="tReset()" data-ko="초기화" data-en="Reset">초기화</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ 알람 패널 ════ -->
+    <div class="panel" id="panel-alarm">
+      <div class="card">
+        <div class="card-hd" data-ko="알람 추가" data-en="Add Alarm">알람 추가</div>
+        <div class="alarm-add">
+          <input type="time" id="aTime"/>
+          <input type="text" id="aLabel" data-ko-ph="알람 이름 (선택)" data-en-ph="Label (optional)"/>
+          <button class="btn primary" onclick="addAlarm()" data-ko="추가" data-en="Add">추가</button>
+        </div>
+        <div class="days-row" id="daysRow"></div>
+        <div class="rep-lbl" id="repLbl"></div>
+      </div>
+      <div class="card">
+        <div class="card-hd" data-ko="알람 목록" data-en="Alarms">알람 목록</div>
+        <div class="alarm-list" id="alarmList"></div>
+      </div>
+    </div>
+
+    <!-- ════ 세계시각 패널 ════ -->
+    <div class="panel" id="panel-world">
+      <div class="card">
+        <div class="country-select">
+          <select id="regionSel" onchange="renderWorld()"></select>
+        </div>
+        <div class="wc-grid" id="wcGrid"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 우측 광고 -->
+  <div class="ad-side">
+    <ins class="adsbygoogle ad-box" style="display:block;width:160px;height:600px"
+      data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="XXXXXXXXXX"></ins>
+    <script>(adsbygoogle=window.adsbygoogle||[]).push({})</script>
+  </div>
+</div>
+
+<!-- 하단 광고 -->
+<div class="ad-bottom">
+  <ins class="adsbygoogle ad-box" style="display:inline-block;width:728px;height:90px"
+    data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="XXXXXXXXXX"></ins>
+  <script>(adsbygoogle=window.adsbygoogle||[]).push({})</script>
+</div>
+
+<script>
+/* ══════════════════════════════════════════
+   LANGUAGE
+══════════════════════════════════════════ */
+let lang = 'ko';
+const T = {
+  ko:{
+    alarmTag:'알람',stopBtn:'끄기',noAlarm:'등록된 알람이 없습니다',
+    once:'반복 없음 (한 번만)',everyday:'매일 반복',weekly:'매주 ',repeat:'반복',
+    days:['월','화','수','목','금','토','일'],
+    bestLap:'최고',worstLap:'최저',
+    presets:[['1시간',3600],['30분',1800],['10분',600],['5분',300],['3분',180],['1분',60]],
+    regions:['전체','아시아','유럽','아메리카','오세아니아','중동·아프리카'],
+    diffFrom:'서울 기준',sameCity:'현재 위치',
+    weekdays:['일','월','화','수','목','금','토'],
+  },
+  en:{
+    alarmTag:'ALARM',stopBtn:'Dismiss',noAlarm:'No alarms set',
+    once:'No repeat (once)',everyday:'Every day',weekly:'Every ',repeat:'',
+    days:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+    bestLap:'Best',worstLap:'Worst',
+    presets:[['1hr',3600],['30m',1800],['10m',600],['5m',300],['3m',180],['1m',60]],
+    regions:['All','Asia','Europe','Americas','Oceania','Mid East·Africa'],
+    diffFrom:'from Seoul',sameCity:'Your location',
+    weekdays:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+  }
+};
+
+function setLang(l){
+  lang=l;
+  document.getElementById('btnKO').classList.toggle('active',l==='ko');
+  document.getElementById('btnEN').classList.toggle('active',l==='en');
+  document.documentElement.lang=l;
+  // update all data-ko / data-en text nodes
+  document.querySelectorAll('[data-ko]').forEach(el=>{
+    if(el.tagName!=='INPUT') el.textContent=el.dataset[l]||el.dataset.ko;
+  });
+  document.querySelectorAll('[data-ko-ph]').forEach(el=>{
+    el.placeholder=el.dataset[l+'Ph']||el.dataset.koPh;
+  });
+  buildPresets(); buildDayBtns(); renderAlarms(); buildRegionSel(); renderWorld();
+  updateRepLbl();
+}
+
+/* ══════════════════════════════════════════
+   UTILS
+══════════════════════════════════════════ */
+const pad=(n,d=2)=>String(Math.floor(n)).padStart(d,'0');
+let audioCtx=null;
+function beep(f=880,d=.4,v=.25){
+  try{
+    if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+    const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+    o.connect(g);g.connect(audioCtx.destination);
+    o.frequency.value=f;
+    g.gain.setValueAtTime(v,audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+d);
+    o.start();o.stop(audioCtx.currentTime+d);
+  }catch(e){}
+}
+function alarmBeep(){[880,1100,880].forEach((f,i)=>setTimeout(()=>beep(f,.3,.35),i*380));}
+
+/* ══════════════════════════════════════════
+   TABS
+══════════════════════════════════════════ */
+let curTab='clock';
+function goTab(name){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  document.getElementById('nav-'+name).classList.add('active');
+  curTab=name;
+  if(name==='world')renderWorld();
+}
+
+/* ══════════════════════════════════════════
+   MAIN CLOCK TICK
+══════════════════════════════════════════ */
+function tickClock(){
+  const now=new Date();
+  const hh=pad(now.getHours()),mm=pad(now.getMinutes()),ss=pad(now.getSeconds());
+
+  // digital
+  document.getElementById('dHH').textContent=hh;
+  document.getElementById('dMM').textContent=mm;
+  document.getElementById('dSS').textContent=ss;
+  const wds=T[lang].weekdays;
+  const dstr=lang==='ko'
+    ?`${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 (${wds[now.getDay()]})`
+    :now.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('dDate').textContent=dstr;
+  document.getElementById('aDate').textContent=dstr;
+
+  // analog
+  tickAnalog(now);
+
+  // check alarms
+  if(ss==='00')checkAlarms(now);
+}
+setInterval(tickClock,1000);tickClock();
+
+/* ── analog ── */
+function buildAnalog(){
+  const svg=document.getElementById('analogSvg');
+  const tg=document.getElementById('ticks');
+  const ng=document.getElementById('nums');
+  tg.innerHTML='';ng.innerHTML='';
+  for(let i=0;i<60;i++){
+    const a=(i/60)*2*Math.PI-Math.PI/2;
+    const big=i%5===0;
+    const r1=big?128:134,r2=138;
+    const x1=150+r1*Math.cos(a),y1=150+r1*Math.sin(a);
+    const x2=150+r2*Math.cos(a),y2=150+r2*Math.sin(a);
+    const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1',x1);line.setAttribute('y1',y1);
+    line.setAttribute('x2',x2);line.setAttribute('y2',y2);
+    line.setAttribute('stroke',big?'#1e2d47':'#131c2e');
+    line.setAttribute('stroke-width',big?2:1);
+    tg.appendChild(line);
+  }
+  for(let i=1;i<=12;i++){
+    const a=(i/12)*2*Math.PI-Math.PI/2;
+    const r=112;
+    const x=150+r*Math.cos(a),y=150+r*Math.sin(a);
+    const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x',x);t.setAttribute('y',y);
+    t.textContent=i;
+    ng.appendChild(t);
+  }
+}
+buildAnalog();
+
+function tickAnalog(now){
+  const h=now.getHours()%12,m=now.getMinutes(),s=now.getSeconds();
+  const ha=(h/12+m/720)*2*Math.PI-Math.PI/2;
+  const ma=(m/60+s/3600)*2*Math.PI-Math.PI/2;
+  const sa=(s/60)*2*Math.PI-Math.PI/2;
+  setHand('hHand',ha,70,150);
+  setHand('mHand',ma,55,150);
+  setHand('sHand',sa,42,165);
+}
+function setHand(id,angle,len,tail){
+  const el=document.getElementById(id);
+  const tx=150+tail*Math.cos(angle+Math.PI),ty=150+tail*Math.sin(angle+Math.PI);
+  const hx=150+len*Math.cos(angle),hy=150+len*Math.sin(angle);
+  el.setAttribute('x1',tx.toFixed(1));el.setAttribute('y1',ty.toFixed(1));
+  el.setAttribute('x2',hx.toFixed(1));el.setAttribute('y2',hy.toFixed(1));
+}
+
+let cMode='digital';
+function setCMode(m){
+  cMode=m;
+  document.getElementById('digital-face').style.display=m==='digital'?'':'none';
+  document.getElementById('analog-face').style.display=m==='analog'?'':'none';
+  document.getElementById('btn-digital').classList.toggle('active',m==='digital');
+  document.getElementById('btn-analog').classList.toggle('active',m==='analog');
+}
+
+/* ══════════════════════════════════════════
+   STOPWATCH
+══════════════════════════════════════════ */
+let swEl=0,swRun=false,swIv=null,swTs=0,swLaps=[],swLastLap=0;
+
+function swFmt(ms){
+  return `${pad(Math.floor(ms/60000))}:${pad(Math.floor(ms%60000/1000))}.${String(ms%1000).padStart(3,'0')}`;
+}
+function swToggle(){
+  if(!swRun){
+    swRun=true;swTs=Date.now()-swEl;
+    swIv=setInterval(()=>{swEl=Date.now()-swTs;document.getElementById('swDisp').textContent=swFmt(swEl);},31);
+    document.getElementById('swDisp').classList.add('running');
+    const b=document.getElementById('swBtn');b.textContent=lang==='ko'?'정지':'Stop';b.className='btn stop';
+    document.getElementById('swLapBtn').disabled=false;
+  }else{
+    swRun=false;clearInterval(swIv);
+    const b=document.getElementById('swBtn');b.textContent=lang==='ko'?'계속':'Resume';b.className='btn go';
+  }
+}
+function swLap(){
+  if(!swRun)return;
+  const lt=swEl-swLastLap;swLastLap=swEl;
+  swLaps.push({total:swEl,lap:lt});
+  renderLaps();beep(1320,.1,.2);
+}
+function renderLaps(){
+  const el=document.getElementById('lapList');
+  if(!swLaps.length){el.innerHTML='';return;}
+  const times=swLaps.map(l=>l.lap);
+  const best=Math.min(...times),worst=Math.max(...times);
+  el.innerHTML=[...swLaps].reverse().map((l,ri)=>{
+    const i=swLaps.length-1-ri;
+    const cls=swLaps.length>1?(l.lap===best?' best':l.lap===worst?' worst':''):'';
+    const tag=l.lap===best&&swLaps.length>1?` <span style="font-size:10px;color:var(--green)">${T[lang].bestLap}</span>`:
+               l.lap===worst&&swLaps.length>1?` <span style="font-size:10px;color:var(--red)">${T[lang].worstLap}</span>`:'';
+    return `<div class="lap-row${cls}">
+      <span class="lap-n">Lap ${i+1}${tag}</span>
+      <span>${swFmt(l.lap)}</span>
+      <span style="color:var(--muted);font-size:11px">${swFmt(l.total)}</span>
+    </div>`;
+  }).join('');
+}
+function swReset(){
+  clearInterval(swIv);swRun=false;swEl=0;swLaps=[];swLastLap=0;
+  document.getElementById('swDisp').textContent='00:00.000';
+  document.getElementById('swDisp').classList.remove('running');
+  const b=document.getElementById('swBtn');b.textContent=lang==='ko'?'시작':'Start';b.className='btn go';
+  document.getElementById('swLapBtn').disabled=true;
+  renderLaps();
+}
+
+/* ══════════════════════════════════════════
+   TIMER
+══════════════════════════════════════════ */
+let tTotal=0,tLeft=0,tRun=false,tIv=null;
+
+function buildPresets(){
+  const row=document.getElementById('presets');
+  row.innerHTML=T[lang].presets.map(([lbl,sec])=>
+    `<button class="btn sm" onclick="setTimer(${sec})">${lbl}</button>`
+  ).join('');
+}
+buildPresets();
+
+function setTimer(sec){tReset();const h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),s=sec%60;document.getElementById('tH').value=h;document.getElementById('tM').value=m;document.getElementById('tS').value=s;}
+
+function tToggle(){
+  if(!tRun){
+    if(tLeft===0){
+      const h=+document.getElementById('tH').value||0,m=+document.getElementById('tM').value||0,s=+document.getElementById('tS').value||0;
+      tTotal=h*3600+m*60+s;tLeft=tTotal;
+      if(!tLeft)return;
+    }
+    tRun=true;
+    const b=document.getElementById('tBtn');b.textContent=lang==='ko'?'일시정지':'Pause';b.className='btn stop';
+    tIv=setInterval(tTick,1000);
+  }else{
+    tRun=false;clearInterval(tIv);
+    const b=document.getElementById('tBtn');b.textContent=lang==='ko'?'계속':'Resume';b.className='btn go';
+  }
+}
+function tTick(){
+  tLeft--;updateTDisp();
+  if(tLeft<=0){
+    clearInterval(tIv);tRun=false;
+    document.getElementById('tDisp').classList.add('done');
+    document.getElementById('tBtn').textContent=lang==='ko'?'시작':'Start';
+    document.getElementById('tBtn').className='btn go';
+    for(let i=0;i<6;i++)setTimeout(()=>beep(660,.5,.4),i*650);
+  }
+}
+function updateTDisp(){
+  document.getElementById('tDisp').textContent=`${pad(Math.floor(tLeft/3600))}:${pad(Math.floor(tLeft%3600/60))}:${pad(tLeft%60)}`;
+  document.getElementById('tProg').style.width=tTotal?(((tTotal-tLeft)/tTotal)*100)+'%':'0%';
+}
+function tReset(){
+  clearInterval(tIv);tRun=false;tLeft=0;tTotal=0;
+  document.getElementById('tDisp').textContent='00:00:00';
+  document.getElementById('tDisp').classList.remove('done');
+  document.getElementById('tProg').style.width='0%';
+  document.getElementById('tBtn').textContent=lang==='ko'?'시작':'Start';
+  document.getElementById('tBtn').className='btn go';
+}
+
+/* ══════════════════════════════════════════
+   ALARM
+══════════════════════════════════════════ */
+let alarms=JSON.parse(localStorage.getItem('clkapp_alarms')||'[]');
+let selDays=[],ringingId=null,beepLp=null;
+
+function buildDayBtns(){
+  const row=document.getElementById('daysRow');
+  row.innerHTML=T[lang].days.map((d,i)=>
+    `<button class="day-btn${selDays.includes(i)?' sel':''}" data-d="${i}" onclick="toggleDay(${i})">${d}</button>`
+  ).join('');
+  updateRepLbl();
+}
+buildDayBtns();
+
+function toggleDay(d){
+  selDays.includes(d)?selDays=selDays.filter(x=>x!==d):selDays.push(d);
+  buildDayBtns();
+}
+function updateRepLbl(){
+  const t=T[lang],lbl=document.getElementById('repLbl');
+  if(!selDays.length)return(lbl.textContent=t.once);
+  if(selDays.length===7)return(lbl.textContent=t.everyday);
+  lbl.textContent=t.weekly+[...selDays].sort((a,b)=>a-b).map(d=>t.days[d]).join(' ')+' '+t.repeat;
+}
+
+function saveAlarms(){localStorage.setItem('clkapp_alarms',JSON.stringify(alarms));}
+
+function addAlarm(){
+  const ti=document.getElementById('aTime').value;
+  if(!ti)return alert(lang==='ko'?'시간을 선택해주세요':'Please select a time');
+  const lbl=document.getElementById('aLabel').value.trim()||(lang==='ko'?'알람':'Alarm');
+  alarms.push({id:Date.now(),time:ti,label:lbl,on:true,days:[...selDays]});
+  saveAlarms();renderAlarms();
+  document.getElementById('aTime').value='';
+  document.getElementById('aLabel').value='';
+  selDays=[];buildDayBtns();
+}
+
+function renderAlarms(){
+  const el=document.getElementById('alarmList'),t=T[lang];
+  if(!alarms.length){el.innerHTML=`<div class="empty">${t.noAlarm}</div>`;return;}
+  el.innerHTML=alarms.map(a=>{
+    const rep=!a.days||!a.days.length?t.once:a.days.length===7?t.everyday:t.weekly+[...a.days].sort((x,y)=>x-y).map(d=>t.days[d]).join(' ')+' '+t.repeat;
+    return `<div class="a-item${a.id===ringingId?' ring':''}" id="ai-${a.id}">
+      <div class="a-time">${a.time}</div>
+      <div class="a-meta"><div class="a-lbl">${a.label}</div><div class="a-days">${rep}</div></div>
+      <button class="tog${a.on?' on':''}" onclick="togAlarm(${a.id})" aria-label="toggle"></button>
+      <button class="del-btn" onclick="delAlarm(${a.id})" aria-label="delete">×</button>
+    </div>`;
+  }).join('');
+}
+renderAlarms();
+
+function togAlarm(id){const a=alarms.find(x=>x.id===id);if(a){a.on=!a.on;saveAlarms();renderAlarms();}}
+function delAlarm(id){alarms=alarms.filter(x=>x.id!==id);saveAlarms();renderAlarms();}
+
+function checkAlarms(now){
+  if(ringingId!==null)return;
+  const hh=pad(now.getHours()),mm=pad(now.getMinutes());
+  const cur=`${hh}:${mm}`;
+  const di=now.getDay()===0?6:now.getDay()-1;
+  alarms.forEach(a=>{
+    if(!a.on||a.time!==cur)return;
+    if(a.days&&a.days.length&&!a.days.includes(di))return;
+    startAlarm(a);
+  });
+}
+function startAlarm(a){
+  ringingId=a.id;
+  document.getElementById('rbTag').textContent=T[lang].alarmTag;
+  document.getElementById('rbName').textContent=a.label;
+  document.getElementById('rbStop').textContent=T[lang].stopBtn;
+  document.getElementById('ringBanner').classList.add('show');
+  alarmBeep();beepLp=setInterval(alarmBeep,1500);
+  renderAlarms();
+}
+function stopAlarm(){
+  clearInterval(beepLp);
+  document.getElementById('ringBanner').classList.remove('show');
+  const a=alarms.find(x=>x.id===ringingId);
+  if(a&&(!a.days||!a.days.length)){a.on=false;saveAlarms();}
+  ringingId=null;renderAlarms();
+}
+
+/* ══════════════════════════════════════════
+   WORLD CLOCK
+══════════════════════════════════════════ */
+const CITIES=[
+  {ko:'서울',en:'Seoul',tz:'Asia/Seoul',r:0},
+  {ko:'도쿄',en:'Tokyo',tz:'Asia/Tokyo',r:0},
+  {ko:'베이징',en:'Beijing',tz:'Asia/Shanghai',r:0},
+  {ko:'방콕',en:'Bangkok',tz:'Asia/Bangkok',r:0},
+  {ko:'싱가포르',en:'Singapore',tz:'Asia/Singapore',r:0},
+  {ko:'뭄바이',en:'Mumbai',tz:'Asia/Kolkata',r:0},
+  {ko:'카라치',en:'Karachi',tz:'Asia/Karachi',r:0},
+  {ko:'런던',en:'London',tz:'Europe/London',r:1},
+  {ko:'파리',en:'Paris',tz:'Europe/Paris',r:1},
+  {ko:'베를린',en:'Berlin',tz:'Europe/Berlin',r:1},
+  {ko:'모스크바',en:'Moscow',tz:'Europe/Moscow',r:1},
+  {ko:'이스탄불',en:'Istanbul',tz:'Europe/Istanbul',r:1},
+  {ko:'뉴욕',en:'New York',tz:'America/New_York',r:2},
+  {ko:'LA',en:'Los Angeles',tz:'America/Los_Angeles',r:2},
+  {ko:'시카고',en:'Chicago',tz:'America/Chicago',r:2},
+  {ko:'토론토',en:'Toronto',tz:'America/Toronto',r:2},
+  {ko:'멕시코시티',en:'Mexico City',tz:'America/Mexico_City',r:2},
+  {ko:'상파울루',en:'São Paulo',tz:'America/Sao_Paulo',r:2},
+  {ko:'시드니',en:'Sydney',tz:'Australia/Sydney',r:3},
+  {ko:'오클랜드',en:'Auckland',tz:'Pacific/Auckland',r:3},
+  {ko:'멜버른',en:'Melbourne',tz:'Australia/Melbourne',r:3},
+  {ko:'두바이',en:'Dubai',tz:'Asia/Dubai',r:4},
+  {ko:'리야드',en:'Riyadh',tz:'Asia/Riyadh',r:4},
+  {ko:'나이로비',en:'Nairobi',tz:'Africa/Nairobi',r:4},
+  {ko:'카이로',en:'Cairo',tz:'Africa/Cairo',r:4},
+];
+
+function buildRegionSel(){
+  const sel=document.getElementById('regionSel');
+  const cur=sel.value;
+  sel.innerHTML=T[lang].regions.map((r,i)=>`<option value="${i-1}">${r}</option>`).join('');
+  sel.value=cur||'-1';
+}
+buildRegionSel();
+
+let wcIv=null;
+function renderWorld(){
+  if(wcIv)clearInterval(wcIv);
+  const reg=parseInt(document.getElementById('regionSel').value);
+  const list=reg===-1?CITIES:CITIES.filter(c=>c.r===reg);
+  const now=new Date();
+  const seoulOff=getTzOff('Asia/Seoul',now);
+  const grid=document.getElementById('wcGrid');
+  const t=T[lang];
+
+  function renderTimes(){
+    const now2=new Date();
+    list.forEach(c=>{
+      const el=document.getElementById('wct-'+c.tz.replace(/[/+]/g,'_'));
+      if(el)el.textContent=now2.toLocaleTimeString(lang==='ko'?'ko-KR':'en-US',{timeZone:c.tz,hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+    });
+  }
+
+  grid.innerHTML=list.map(c=>{
+    const ti=now.toLocaleTimeString(lang==='ko'?'ko-KR':'en-US',{timeZone:c.tz,hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+    const di=now.toLocaleDateString(lang==='ko'?'ko-KR':'en-US',{timeZone:c.tz,month:'numeric',day:'numeric',weekday:'short'});
+    const off=getTzOff(c.tz,now);
+    const diff=Math.round((off-seoulOff)/60);
+    const diffStr=diff===0?t.sameCity:`${t.diffFrom} ${diff>0?'+':''}${diff}h`;
+    const safeId=c.tz.replace(/[/+]/g,'_');
+    return `<div class="wc-card">
+      <div class="wc-city">${lang==='ko'?c.ko:c.en}</div>
+      <div class="wc-t" id="wct-${safeId}">${ti}</div>
+      <div class="wc-d">${di}</div>
+      <div class="wc-diff">${diffStr}</div>
+    </div>`;
+  }).join('');
+
+  wcIv=setInterval(renderTimes,1000);
+}
+
+function getTzOff(tz,date){
+  try{
+    const s=date.toLocaleString('en-US',{timeZone:tz,timeZoneName:'shortOffset'});
+    const m=s.match(/GMT([+-]\d+(?::\d+)?)/);
+    if(m){const p=m[1].split(':');return parseInt(p[0])*60+(parseInt(p[1]||0)*(parseInt(p[0])<0?-1:1));}
+  }catch(e){}
+  return 0;
+}
+</script>
+</body>
+</html>
