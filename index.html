@@ -158,6 +158,33 @@ body{display:flex;flex-direction:column;min-height:100vh}
 .wc-d{font-size:11px;color:var(--muted);margin-top:3px}
 .wc-diff{font-size:11px;color:var(--accent);margin-top:2px}
 
+/* ── pomodoro ── */
+.pom-mode-row{display:flex;gap:8px;justify-content:center;margin-bottom:20px;flex-wrap:wrap}
+.pom-mode-btn{padding:7px 18px;background:var(--s3);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:12px;cursor:pointer;transition:all .15s;font-family:var(--sans)}
+.pom-mode-btn.active{background:var(--accent2);border-color:var(--accent2);color:white;font-weight:500}
+.pom-ring{display:flex;justify-content:center;align-items:center;margin:8px 0 20px}
+.pom-svg-wrap{position:relative;width:220px;height:220px}
+.pom-svg-wrap svg{position:absolute;top:0;left:0}
+.pom-center-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none}
+.pom-time{font-family:var(--mono);font-size:46px;font-weight:300;letter-spacing:2px;color:var(--text);line-height:1}
+.pom-phase{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-top:6px}
+.pom-sets{display:flex;gap:8px;justify-content:center;align-items:center;margin:16px 0}
+.pom-dot{width:12px;height:12px;border-radius:50%;border:1.5px solid var(--border);transition:all .3s}
+.pom-dot.done{background:var(--accent2);border-color:var(--accent2)}
+.pom-dot.current{background:var(--amber);border-color:var(--amber);box-shadow:0 0 8px rgba(255,182,39,.4)}
+.pom-settings{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-top:8px}
+.pom-set-item{display:flex;flex-direction:column;gap:4px}
+.pom-set-item label{font-size:11px;color:var(--muted);letter-spacing:1px}
+.pom-set-item input{width:100%;height:44px;background:var(--s3);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:var(--mono);font-size:22px;font-weight:300;text-align:center;transition:border-color .15s}
+.pom-set-item input:focus{outline:none;border-color:var(--accent2)}
+.pom-stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
+.pom-stat{background:var(--s3);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+.pom-stat-n{font-family:var(--mono);font-size:28px;font-weight:300;color:var(--accent2)}
+.pom-stat-l{font-size:11px;color:var(--muted);margin-top:4px;letter-spacing:1px}
+/* ad slot inside pomodoro break */
+.pom-ad-break{display:none;justify-content:center;margin:16px 0}
+.pom-ad-break.show{display:flex}
+
 /* ringing banner */
 .ring-banner{display:none;position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:9999;background:var(--green);color:#080c14;padding:16px 28px;border-radius:14px;box-shadow:0 8px 40px rgba(0,229,160,.4);min-width:280px;text-align:center}
 .ring-banner.show{display:block;animation:slideD .3s ease}
@@ -220,6 +247,9 @@ body{display:flex;flex-direction:column;min-height:100vh}
     </div>
     <div class="nav-item" onclick="goTab('world')" id="nav-world">
       <span class="nav-icon">🌍</span><span class="nav-label" data-ko="세계시각" data-en="World">세계시각</span>
+    </div>
+    <div class="nav-item" onclick="goTab('pomodoro')" id="nav-pomodoro">
+      <span class="nav-icon">🍅</span><span class="nav-label" data-ko="포모도로" data-en="Pomodoro">포모도로</span>
     </div>
   </div>
 
@@ -339,6 +369,91 @@ body{display:flex;flex-direction:column;min-height:100vh}
       </div>
     </div>
 
+    <!-- ════ 포모도로 패널 ════ -->
+    <div class="panel" id="panel-pomodoro">
+
+      <!-- 모드 선택 -->
+      <div class="pom-mode-row" id="pomModeRow"></div>
+
+      <!-- 링 타이머 -->
+      <div class="card">
+        <div class="pom-ring">
+          <div class="pom-svg-wrap" style="width:220px;height:220px">
+            <svg width="220" height="220" viewBox="0 0 220 220">
+              <circle cx="110" cy="110" r="96" fill="none" stroke="var(--border)" stroke-width="10"/>
+              <circle id="pomArc" cx="110" cy="110" r="96" fill="none"
+                stroke="var(--accent2)" stroke-width="10" stroke-linecap="round"
+                stroke-dasharray="603" stroke-dashoffset="0"
+                transform="rotate(-90 110 110)" style="transition:stroke-dashoffset .9s linear,stroke .4s"/>
+            </svg>
+            <div class="pom-center-text">
+              <div class="pom-time" id="pomDisp">25:00</div>
+              <div class="pom-phase" id="pomPhase">집중</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 세션 도트 -->
+        <div class="pom-sets" id="pomDots"></div>
+
+        <!-- 버튼 -->
+        <div class="btn-row">
+          <button class="btn go" id="pomBtn" onclick="pomToggle()" data-ko="시작" data-en="Start">시작</button>
+          <button class="btn" onclick="pomSkip()" id="pomSkipBtn" data-ko="건너뛰기" data-en="Skip">건너뛰기</button>
+          <button class="btn" onclick="pomReset()" data-ko="초기화" data-en="Reset">초기화</button>
+        </div>
+
+        <!-- 휴식 시간 광고 슬롯 -->
+        <div class="pom-ad-break" id="pomAdBreak">
+          <ins class="adsbygoogle ad-box" style="display:inline-block;width:468px;height:60px"
+            data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="XXXXXXXXXX"></ins>
+        </div>
+      </div>
+
+      <!-- 설정 -->
+      <div class="card">
+        <div class="card-hd" data-ko="시간 설정" data-en="Settings">시간 설정</div>
+        <div class="pom-settings">
+          <div class="pom-set-item">
+            <label data-ko="집중 (분)" data-en="Focus (min)">집중 (분)</label>
+            <input type="number" id="pomFocusMin" value="25" min="1" max="90" onchange="pomApplySettings()"/>
+          </div>
+          <div class="pom-set-item">
+            <label data-ko="짧은 휴식 (분)" data-en="Short break (min)">짧은 휴식 (분)</label>
+            <input type="number" id="pomShortMin" value="5" min="1" max="30" onchange="pomApplySettings()"/>
+          </div>
+          <div class="pom-set-item">
+            <label data-ko="긴 휴식 (분)" data-en="Long break (min)">긴 휴식 (분)</label>
+            <input type="number" id="pomLongMin" value="15" min="1" max="60" onchange="pomApplySettings()"/>
+          </div>
+          <div class="pom-set-item">
+            <label data-ko="세션 수" data-en="Sessions">세션 수</label>
+            <input type="number" id="pomSessions" value="4" min="2" max="8" onchange="pomApplySettings()"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- 오늘 통계 -->
+      <div class="card">
+        <div class="card-hd" data-ko="오늘 통계" data-en="Today">오늘 통계</div>
+        <div class="pom-stat-row">
+          <div class="pom-stat">
+            <div class="pom-stat-n" id="statFocus">0</div>
+            <div class="pom-stat-l" data-ko="완료 세션" data-en="Sessions">완료 세션</div>
+          </div>
+          <div class="pom-stat">
+            <div class="pom-stat-n" id="statMins">0</div>
+            <div class="pom-stat-l" data-ko="집중 분" data-en="Focus min">집중 분</div>
+          </div>
+          <div class="pom-stat">
+            <div class="pom-stat-n" id="statSets">0</div>
+            <div class="pom-stat-l" data-ko="완료 세트" data-en="Sets">완료 세트</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /panel-pomodoro -->
+
   </div>
 
   <!-- 우측 광고 -->
@@ -371,6 +486,8 @@ const T = {
     regions:['전체','아시아','유럽','아메리카','오세아니아','중동·아프리카'],
     diffFrom:'서울 기준',sameCity:'현재 위치',
     weekdays:['일','월','화','수','목','금','토'],
+    pomModes:['집중','짧은 휴식','긴 휴식'],
+    pomPhase:['집중','짧은 휴식','긴 휴식'],
   },
   en:{
     alarmTag:'ALARM',stopBtn:'Dismiss',noAlarm:'No alarms set',
@@ -381,6 +498,8 @@ const T = {
     regions:['All','Asia','Europe','Americas','Oceania','Mid East·Africa'],
     diffFrom:'from Seoul',sameCity:'Your location',
     weekdays:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+    pomModes:['Focus','Short Break','Long Break'],
+    pomPhase:['FOCUS','SHORT BREAK','LONG BREAK'],
   }
 };
 
@@ -396,7 +515,7 @@ function setLang(l){
   document.querySelectorAll('[data-ko-ph]').forEach(el=>{
     el.placeholder=el.dataset[l+'Ph']||el.dataset.koPh;
   });
-  buildPresets(); buildDayBtns(); renderAlarms(); buildRegionSel(); renderWorld();
+  buildPresets(); buildDayBtns(); renderAlarms(); buildRegionSel(); renderWorld(); pomBuildUI();
   updateRepLbl();
 }
 
@@ -429,6 +548,7 @@ function goTab(name){
   document.getElementById('nav-'+name).classList.add('active');
   curTab=name;
   if(name==='world')renderWorld();
+  if(name==='pomodoro')pomBuildUI();
 }
 
 /* ══════════════════════════════════════════
@@ -704,6 +824,176 @@ function stopAlarm(){
   ringingId=null;renderAlarms();
 }
 
+
+/* ══════════════════════════════════════════
+   POMODORO
+══════════════════════════════════════════ */
+const CIRC = 2 * Math.PI * 96; // 603.2
+let pomPhaseIdx = 0; // 0=focus 1=short 2=long
+let pomSet = 0;      // 현재 세트 내 완료 세션 수
+let pomTotalSets = 0; // 완료 세트 수
+let pomTotalFocus = 0; // 총 완료 집중 세션
+let pomTotalMins = 0;  // 총 집중 분
+let pomLeft = 0, pomTotal = 0;
+let pomRun = false, pomIv = null;
+
+function pomSec(phaseIdx){
+  const f=+document.getElementById('pomFocusMin').value||25;
+  const s=+document.getElementById('pomShortMin').value||5;
+  const l=+document.getElementById('pomLongMin').value||15;
+  return [f*60, s*60, l*60][phaseIdx];
+}
+function pomMaxSessions(){return +document.getElementById('pomSessions').value||4;}
+
+function pomBuildUI(){
+  // mode buttons
+  const row=document.getElementById('pomModeRow');
+  const modes=T[lang].pomModes;
+  row.innerHTML=modes.map((m,i)=>
+    `<button class="pom-mode-btn${pomPhaseIdx===i?' active':''}" onclick="pomJumpPhase(${i})">${m}</button>`
+  ).join('');
+  // dots
+  renderDots();
+  // display
+  if(!pomRun && pomLeft===0) pomLeft=pomSec(pomPhaseIdx), pomTotal=pomLeft;
+  updatePomDisp();
+  updateStats();
+}
+
+function pomJumpPhase(i){
+  if(pomRun){pomRun=false;clearInterval(pomIv);}
+  pomPhaseIdx=i;
+  pomLeft=pomSec(i);pomTotal=pomLeft;
+  updatePomDisp();
+  pomBuildUI();
+  showBreakAd(i!==0);
+  // reset btn label
+  const b=document.getElementById('pomBtn');
+  b.textContent=T[lang].pomModes[0]==='집중'?'시작':'Start';
+  b.className='btn go';
+}
+
+function pomApplySettings(){
+  if(!pomRun){
+    pomLeft=pomSec(pomPhaseIdx);pomTotal=pomLeft;
+    updatePomDisp();
+  }
+  renderDots();
+}
+
+function pomToggle(){
+  if(!pomRun){
+    pomRun=true;
+    if(pomLeft===0){pomLeft=pomSec(pomPhaseIdx);pomTotal=pomLeft;}
+    pomIv=setInterval(pomTick,1000);
+    const b=document.getElementById('pomBtn');
+    b.textContent=lang==='ko'?'일시정지':'Pause';b.className='btn stop';
+  }else{
+    pomRun=false;clearInterval(pomIv);
+    const b=document.getElementById('pomBtn');
+    b.textContent=lang==='ko'?'계속':'Resume';b.className='btn go';
+  }
+}
+
+function pomTick(){
+  pomLeft--;
+  updatePomDisp();
+  if(pomLeft<=0){
+    clearInterval(pomIv);pomRun=false;
+    // beep sequence
+    for(let i=0;i<4;i++)setTimeout(()=>beep(pomPhaseIdx===0?880:660,.3,.3),i*500);
+    pomAdvance();
+  }
+}
+
+function pomAdvance(){
+  const maxS=pomMaxSessions();
+  if(pomPhaseIdx===0){
+    // focus done
+    pomTotalFocus++;
+    pomTotalMins+=Math.round((+document.getElementById('pomFocusMin').value||25));
+    pomSet++;
+    if(pomSet>=maxS){
+      // long break
+      pomSet=0;pomTotalSets++;
+      pomPhaseIdx=2;
+    }else{
+      pomPhaseIdx=1; // short break
+    }
+    showBreakAd(true);
+  }else{
+    // break done
+    pomPhaseIdx=0;
+    showBreakAd(false);
+  }
+  pomLeft=pomSec(pomPhaseIdx);pomTotal=pomLeft;
+  updatePomDisp();
+  pomBuildUI();
+  // auto-start next
+  pomRun=true;
+  const b=document.getElementById('pomBtn');
+  b.textContent=lang==='ko'?'일시정지':'Pause';b.className='btn stop';
+  pomIv=setInterval(pomTick,1000);
+}
+
+function pomSkip(){
+  if(pomRun){pomRun=false;clearInterval(pomIv);}
+  pomAdvance();
+}
+
+function pomReset(){
+  pomRun=false;clearInterval(pomIv);
+  pomPhaseIdx=0;pomSet=0;
+  pomLeft=pomSec(0);pomTotal=pomLeft;
+  showBreakAd(false);
+  updatePomDisp();
+  pomBuildUI();
+  const b=document.getElementById('pomBtn');
+  b.textContent=lang==='ko'?'시작':'Start';b.className='btn go';
+}
+
+function updatePomDisp(){
+  const m=Math.floor(pomLeft/60),s=pomLeft%60;
+  document.getElementById('pomDisp').textContent=`${pad(m)}:${pad(s)}`;
+  // arc
+  const ratio=pomTotal>0?(pomLeft/pomTotal):1;
+  const offset=CIRC*(1-ratio);
+  const arc=document.getElementById('pomArc');
+  arc.style.strokeDashoffset=offset;
+  // color by phase
+  const cols=['var(--accent2)','var(--green)','var(--amber)'];
+  arc.style.stroke=cols[pomPhaseIdx];
+  // phase label
+  document.getElementById('pomPhase').textContent=T[lang].pomPhase[pomPhaseIdx];
+}
+
+function renderDots(){
+  const max=pomMaxSessions();
+  const el=document.getElementById('pomDots');
+  let html='';
+  for(let i=0;i<max;i++){
+    const cls=i<pomSet?'done':(i===pomSet&&pomPhaseIdx===0?'current':'');
+    html+=`<div class="pom-dot ${cls}"></div>`;
+  }
+  el.innerHTML=html;
+}
+
+function showBreakAd(show){
+  const el=document.getElementById('pomAdBreak');
+  el.classList.toggle('show',show);
+  if(show){
+    try{(adsbygoogle=window.adsbygoogle||[]).push({});}catch(e){}
+  }
+}
+
+function updateStats(){
+  document.getElementById('statFocus').textContent=pomTotalFocus;
+  document.getElementById('statMins').textContent=pomTotalMins;
+  document.getElementById('statSets').textContent=pomTotalSets;
+}
+
+// init
+pomLeft=pomSec(0);pomTotal=pomLeft;
 /* ══════════════════════════════════════════
    WORLD CLOCK
 ══════════════════════════════════════════ */
