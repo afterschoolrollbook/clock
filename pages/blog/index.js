@@ -5,7 +5,7 @@ import Link from 'next/link'
 const META = {
   ko: {
     title: '블로그 | Clock-Down — 온라인 시계 팁',
-    desc: '음성 인식 활용법, 생산성 팁, 온라인 시계 가이드 등 유용한 정보를 제공합니다.',
+    desc: '시계 활용법, 생산성 팁, 포모도로 가이드 등 유용한 정보를 제공합니다.',
     heading: '블로그',
     sub: '온라인 시계 & 생산성 팁',
     empty: '아직 글이 없어요.',
@@ -14,10 +14,10 @@ const META = {
     footer: '© 2024 Clock-Down. 무료 온라인 시계 도구.',
   },
   en: {
-    title: 'Blog | Clock-Down — Voice Typing Tips',
+    title: 'Blog | Clock-Down — Online Clock Tips',
     desc: 'Tips on voice recognition, productivity, and voice typing guides.',
     heading: 'Blog',
-    sub: 'Voice Typing & Productivity Tips',
+    sub: 'Online Clock & Productivity Tips',
     empty: 'No posts yet.',
     readMore: 'Read more →',
     langBtn: '🇰🇷 한국어',
@@ -66,10 +66,10 @@ export default function BlogIndex() {
       </Head>
 
       <header className="header">
-        <div className="wrap header-inner">
+        <div className="header-inner">
           <Link href="/" className="logo">
             <div className="logo-icon">⏱</div>
-            <span className="logo-text">Voice<span>-Down</span></span>
+            <span className="logo-text">Clock<span>-Down</span></span>
           </Link>
           <button className="lang-btn" onClick={toggleLang}>{t.langBtn}</button>
         </div>

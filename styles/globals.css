@@ -1,17 +1,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Orbitron:wght@300;400;700&display=swap');
 
 :root {
-  --bg: #0a0a0a;
-  --surface: #111111;
-  --surface2: #1a1a1a;
-  --surface3: #222222;
-  --accent: #ffffff;
-  --accent2: #cccccc;
-  --accent3: #eeeeee;
-  --text: #ffffff;
-  --text2: #aaaaaa;
-  --text3: #555555;
-  --border: #2a2a2a;
+  --bg: #12100d;
+  --surface: #1c1914;
+  --surface2: #252118;
+  --surface3: #2f2a1f;
+  --accent: #c9a84c;
+  --accent2: #a8873a;
+  --accent3: #e8c96a;
+  --text: #f0e8d8;
+  --text2: #9a8a6a;
+  --text3: #5a4f3a;
+  --border: #2e2820;
   --radius: 12px;
   --mono: 'Orbitron', monospace;
 }
@@ -45,7 +45,7 @@ body {
 .logo { display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--text); }
 .logo-icon {
   width:34px; height:34px;
-  background: #ffffff;
+  background: #c9a84c;
   border-radius:8px;
   display:flex; align-items:center; justify-content:center;
   font-size:16px;
@@ -163,7 +163,7 @@ body {
   transition: all 0.15s;
   font-family: inherit;
 }
-.cmode-btn.active { background: var(--text); border-color: var(--text); color: var(--bg); font-weight: 700; }
+.cmode-btn.active { background: var(--accent); border-color: var(--accent); color: var(--bg); font-weight: 700; }
 
 .digital-clock { text-align: center; padding: 40px 20px; }
 .dig-time {
@@ -210,7 +210,7 @@ body {
 }
 .btn:hover { background: var(--surface2); border-color: var(--text2); }
 .btn:active { transform: scale(.97); }
-.btn.go { background: var(--text); border-color: var(--text); color: var(--bg); }
+.btn.go { background: var(--accent); border-color: var(--accent); color: var(--bg); }
 .btn.stop { background: var(--surface3); border-color: var(--text2); }
 .btn.sm { padding: 7px 16px; font-size: 12px; }
 
@@ -255,7 +255,7 @@ body {
   border: 1px solid var(--border); background: transparent;
   color: var(--text3); font-size: 11px; cursor: pointer; transition: all 0.15s; font-family: inherit;
 }
-.day-btn.sel { background: var(--text); border-color: var(--text); color: var(--bg); }
+.day-btn.sel { background: var(--accent); border-color: var(--accent); color: var(--bg); }
 .rep-lbl { font-size: 11px; color: var(--text3); margin-top: 4px; }
 .alarm-list { display:flex; flex-direction:column; gap:8px; }
 .a-item {
@@ -270,8 +270,8 @@ body {
   animation: alarm-flash 0.5s infinite;
 }
 @keyframes alarm-flash {
-  0%, 100% { background: var(--surface2); border-color: var(--text); }
-  50% { background: var(--text); border-color: var(--text); }
+  0%, 100% { background: var(--surface2); border-color: var(--accent); }
+  50% { background: var(--accent); border-color: var(--accent); }
 }
 .a-item.ring .a-time,
 .a-item.ring .a-lbl { color: var(--bg); }
@@ -300,15 +300,15 @@ body {
   display: none;
   position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
   z-index: 9999;
-  background: var(--text); color: var(--bg);
+  background: var(--accent); color: var(--bg);
   padding: 16px 28px; border-radius: 14px;
   box-shadow: 0 8px 40px rgba(255,255,255,0.2);
   min-width: 280px; text-align: center;
 }
 .ring-banner.show { display: block; animation: banner-flash 0.6s infinite, slideD .3s ease; }
 @keyframes banner-flash {
-  0%, 100% { background: #ffffff; color: #000000; }
-  50% { background: #000000; color: #ffffff; border: 2px solid #ffffff; }
+  0%, 100% { background: #c9a84c; color: #000000; }
+  50% { background: #000000; color: #c9a84c; border: 2px solid #c9a84c; }
 }
 @keyframes slideD { from{opacity:0;transform:translateX(-50%) translateY(-16px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
 .rb-tag { font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; opacity: .6; }
@@ -372,3 +372,6 @@ body {
   .ad-sidebar { display: none; }
   .main-content { padding: 16px; }
 }
+
+/* ── WRAP (블로그/privacy/terms/faq 페이지용) ── */
+.wrap { max-width: 960px; margin: 0 auto; padding: 0 20px; }

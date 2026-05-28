@@ -11,7 +11,7 @@ const CONTENT = {
     sections: [
       {
         title: '1. 서비스 소개',
-        content: 'Clock-Down(clock-down.com)은 음성을 텍스트로 변환해주는 무료 웹 도구입니다. 본 서비스를 이용함으로써 아래 약관에 동의한 것으로 간주합니다.',
+        content: 'Clock-Down(clock-down.com)은 알람·타이머·스탑워치·세계시각·포모도로를 제공하는 무료 온라인 시계 도구입니다. 본 서비스를 이용함으로써 아래 약관에 동의한 것으로 간주합니다.',
       },
       {
         title: '2. 서비스 이용 조건',
@@ -31,7 +31,7 @@ const CONTENT = {
       },
       {
         title: '5. 면책 조항',
-        content: 'Clock-Down은 음성 인식 오류, 서비스 중단 등으로 인한 손해에 대해 책임을 지지 않습니다.',
+        content: 'Clock-Down은 알람 오류, 시간 오차, 서비스 중단 등으로 인한 손해에 대해 책임을 지지 않습니다.',
       },
       {
         title: '6. 문의',
@@ -51,7 +51,7 @@ const CONTENT = {
     sections: [
       {
         title: '1. About the Service',
-        content: 'Clock-Down (clock-down.com) is a free web tool that converts speech to text. By using this service, you agree to the terms below.',
+        content: 'Clock-Down (clock-down.com) is a free online clock tool with alarm, timer, stopwatch, world clock, and pomodoro. By using this service, you agree to the terms below.',
       },
       {
         title: '2. Terms of Use',
@@ -110,10 +110,10 @@ export default function Terms() {
       </Head>
 
       <header className="header">
-        <div className="wrap header-inner">
+        <div className="header-inner">
           <Link href="/" className="logo">
             <div className="logo-icon">⏱</div>
-            <span className="logo-text">Voice<span>-Down</span></span>
+            <span className="logo-text">Clock<span>-Down</span></span>
           </Link>
           <button className="lang-btn" onClick={toggleLang}>{t.langBtn}</button>
         </div>

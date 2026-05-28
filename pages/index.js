@@ -125,17 +125,17 @@ function AnalogClock({ now }) {
   })
   return (
     <svg width="300" height="300" viewBox="0 0 300 300" style={{filter:'drop-shadow(0 0 20px rgba(255,255,255,0.06))'}}>
-      <circle cx="150" cy="150" r="145" fill="#111111" stroke="#2a2a2a" strokeWidth="2"/>
-      <circle cx="150" cy="150" r="138" fill="none" stroke="#1a1a1a" strokeWidth="1"/>
+      <circle cx="150" cy="150" r="145" fill="#1c1914" stroke="#2e2820" strokeWidth="2"/>
+      <circle cx="150" cy="150" r="138" fill="none" stroke="#252118" strokeWidth="1"/>
       {ticks.map((t,i)=><line key={i} x1={t.x1} y1={t.y1} x2={t.x2} y2={t.y2} stroke={t.big?'#3a3a3a':'#222'} strokeWidth={t.big?2:1}/>)}
-      <g fontFamily="Orbitron,monospace" fontSize="12" fill="#444" textAnchor="middle" dominantBaseline="central">
+      <g fontFamily="Orbitron,monospace" fontSize="12" fill="#5a4f3a" textAnchor="middle" dominantBaseline="central">
         {nums.map(n=><text key={n.n} x={n.x} y={n.y}>{n.n}</text>)}
       </g>
-      <line x1={handTail(ha,15).x} y1={handTail(ha,15).y} x2={handEnd(ha,70).x} y2={handEnd(ha,70).y} stroke="#ffffff" strokeWidth="5" strokeLinecap="round"/>
-      <line x1={handTail(ma,15).x} y1={handTail(ma,15).y} x2={handEnd(ma,55).x} y2={handEnd(ma,55).y} stroke="#cccccc" strokeWidth="3" strokeLinecap="round"/>
-      <line x1={handTail(sa,18).x} y1={handTail(sa,18).y} x2={handEnd(sa,42).x} y2={handEnd(sa,42).y} stroke="#888888" strokeWidth="1.5" strokeLinecap="round"/>
-      <circle cx="150" cy="150" r="5" fill="#ffffff"/>
-      <circle cx="150" cy="150" r="2" fill="#0a0a0a"/>
+      <line x1={handTail(ha,15).x} y1={handTail(ha,15).y} x2={handEnd(ha,70).x} y2={handEnd(ha,70).y} stroke="#c9a84c" strokeWidth="5" strokeLinecap="round"/>
+      <line x1={handTail(ma,15).x} y1={handTail(ma,15).y} x2={handEnd(ma,55).x} y2={handEnd(ma,55).y} stroke="#9a8a6a" strokeWidth="3" strokeLinecap="round"/>
+      <line x1={handTail(sa,18).x} y1={handTail(sa,18).y} x2={handEnd(sa,42).x} y2={handEnd(sa,42).y} stroke="#5a4f3a" strokeWidth="1.5" strokeLinecap="round"/>
+      <circle cx="150" cy="150" r="5" fill="#12100d"/>
+      <circle cx="150" cy="150" r="2" fill="#12100d"/>
     </svg>
   )
 }
@@ -439,7 +439,7 @@ export default function Home() {
             <span className="logo-text">{t.logoText}<span>-DOWN</span></span>
           </a>
           <div style={{display:'flex',alignItems:'center',gap:10}}>
-            <a href="/blog" style={{color:'#555',fontSize:13,fontWeight:600,textDecoration:'none'}}>
+            <a href="/blog" style={{color:'#9a8a6a',fontSize:13,fontWeight:600,textDecoration:'none'}}>
               {lang==='ko'?'블로그':'Blog'}
             </a>
             <button className="lang-btn" onClick={toggleLang}>{t.langBtn}</button>
@@ -515,7 +515,7 @@ export default function Home() {
                       <div key={i} className={`lap-row${cls}`}>
                         <span className="lap-n">Lap {i+1}{l.lap===best&&swLaps.length>1?` (${t.best})`:''}{l.lap===worst&&swLaps.length>1?` (${t.worst})`:''}</span>
                         <span>{swFmt(l.lap)}</span>
-                        <span style={{color:'#555',fontSize:11}}>{swFmt(l.total)}</span>
+                        <span style={{color:'#9a8a6a',fontSize:11}}>{swFmt(l.total)}</span>
                       </div>
                     )
                   })}
@@ -638,9 +638,9 @@ export default function Home() {
               <div className="pom-ring">
                 <div className="pom-svg-wrap">
                   <svg width="220" height="220" viewBox="0 0 220 220">
-                    <circle cx="110" cy="110" r="96" fill="none" stroke="#2a2a2a" strokeWidth="8"/>
+                    <circle cx="110" cy="110" r="96" fill="none" stroke="#2e2820" strokeWidth="8"/>
                     <circle cx="110" cy="110" r="96" fill="none"
-                      stroke="#ffffff" strokeWidth="8" strokeLinecap="round"
+                      stroke="#c9a84c" strokeWidth="8" strokeLinecap="round"
                       strokeDasharray={CIRC} strokeDashoffset={pomArcOffset}
                       transform="rotate(-90 110 110)"
                       style={{transition:'stroke-dashoffset .9s linear'}}
@@ -710,9 +710,9 @@ export default function Home() {
           {adsOn && <AdSlot slot={process.env.NEXT_PUBLIC_AD_SLOT_FOOTER||'4444444444'} label={t.adLabel} />}
           <p className="footer-text">{t.footer}</p>
           <div style={{display:'flex',gap:20,justifyContent:'center',marginTop:10}}>
-            <a href="/privacy" style={{color:'#333',fontSize:12,textDecoration:'none'}}>개인정보처리방침</a>
-            <a href="/terms" style={{color:'#333',fontSize:12,textDecoration:'none'}}>이용약관</a>
-            <a href="/faq" style={{color:'#333',fontSize:12,textDecoration:'none'}}>FAQ</a>
+            <a href="/privacy" style={{color:'#5a4f3a',fontSize:12,textDecoration:'none'}}>개인정보처리방침</a>
+            <a href="/terms" style={{color:'#5a4f3a',fontSize:12,textDecoration:'none'}}>이용약관</a>
+            <a href="/faq" style={{color:'#5a4f3a',fontSize:12,textDecoration:'none'}}>FAQ</a>
           </div>
           <a href="/admin" className="admin-link">admin</a>
         </div>

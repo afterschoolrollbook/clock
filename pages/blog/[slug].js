@@ -40,10 +40,10 @@ export default function BlogPost() {
 
   const HeaderComp = () => (
     <header className="header">
-      <div className="wrap header-inner">
+      <div className="header-inner">
         <Link href="/" className="logo">
           <div className="logo-icon">⏱</div>
-          <span className="logo-text">Voice<span>-Down</span></span>
+          <span className="logo-text">Clock<span>-Down</span></span>
         </Link>
         <button className="lang-btn" onClick={toggleLang}>
           {lang === 'ko' ? '🇺🇸 English' : '🇰🇷 한국어'}

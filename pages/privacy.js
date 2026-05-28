@@ -13,7 +13,7 @@ const CONTENT = {
         title: '1. 수집하는 정보',
         content: 'Clock-Down은 서비스 제공을 위해 아래와 같은 정보를 처리할 수 있습니다.',
         items: [
-          '음성 입력 데이터 (서버에 저장되지 않음, 브라우저에서만 처리)',
+          '시계 이용 데이터 (서버에 저장되지 않음, 브라우저에서만 처리)',
           'Google AdSense를 통한 쿠키 및 광고 관련 데이터',
           'Google Analytics를 통한 방문 통계 (익명 처리됨)',
         ],
@@ -22,14 +22,14 @@ const CONTENT = {
         title: '2. 정보 이용 목적',
         content: '수집된 정보는 다음 목적으로만 사용됩니다.',
         items: [
-          '음성 인식 및 텍스트 변환 기능 제공',
+          '시계, 타이머, 알람 기능 제공',
           '서비스 품질 개선 및 통계 분석',
           'Google AdSense 맞춤형 광고 표시',
         ],
       },
       {
         title: '3. 정보 보관 및 파기',
-        content: '입력된 음성 데이터는 어떠한 서버에도 저장되지 않으며, 브라우저 세션 종료 시 자동으로 삭제됩니다. 광고 관련 쿠키는 Google의 개인정보처리방침에 따라 관리됩니다.',
+        content: '알람·타이머 설정 등 이용 데이터는 브라우저 로컬스토리지에만 저장되며, 서버에 전송되지 않습니다. 광고 관련 쿠키는 Google의 개인정보처리방침에 따라 관리됩니다.',
       },
       {
         title: '4. 제3자 제공',
@@ -65,7 +65,7 @@ const CONTENT = {
         title: '1. Information We Collect',
         content: 'Clock-Down may process the following information to provide our service.',
         items: [
-          'Voice input data (never stored on any server — processed in your browser only)',
+          '시계 이용 데이터 (서버에 저장되지 않음, 브라우저에서만 처리)',
           'Cookie and ad-related data via Google AdSense',
           'Anonymous visit statistics via Google Analytics',
         ],
@@ -74,14 +74,14 @@ const CONTENT = {
         title: '2. How We Use Information',
         content: 'Collected information is used solely for the following purposes.',
         items: [
-          'Providing the voice recognition and text conversion feature',
+          'Providing clock, alarm, timer, stopwatch, world clock, and pomodoro features',
           'Improving service quality and analyzing usage statistics',
           'Displaying personalized ads via Google AdSense',
         ],
       },
       {
         title: '3. Data Retention & Deletion',
-        content: "Voice input data is never stored on any server and is automatically cleared when you close your browser session. Ad-related cookies are managed in accordance with Google's Privacy Policy.",
+        content: "이용 데이터는 어떠한 서버에도 저장되지 않으며 and is automatically cleared when you close your browser session. Ad-related cookies are managed in accordance with Google's Privacy Policy.",
       },
       {
         title: '4. Third-Party Sharing',
@@ -134,10 +134,10 @@ export default function Privacy() {
       </Head>
 
       <header className="header">
-        <div className="wrap header-inner">
+        <div className="header-inner">
           <Link href="/" className="logo">
             <div className="logo-icon">⏱</div>
-            <span className="logo-text">Voice<span>-Down</span></span>
+            <span className="logo-text">Clock<span>-Down</span></span>
           </Link>
           <button className="lang-btn" onClick={toggleLang}>{t.langBtn}</button>
         </div>
